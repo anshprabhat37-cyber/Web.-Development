@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Shape Generator & Live Preview</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #0b0f19;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            color: #38bdf8;
+            margin-bottom: 8px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-chrome {
+            background: #059669;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+        }
+
+        /* Input Controls Section */
+        .controls-card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        select, input[type="text"], input[type="color"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+        }
+
+        /* Shape Preview Box */
+        .preview-card {
+            background: #020617;
+            border: 2px dashed #334155;
+            border-radius: 10px;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Generated Shape Base Style */
+        #shape {
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        /* Output Code Box */
+        .code-card {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            white-space: pre-wrap;
+            word-break: break-all;
+            position: relative;
+        }
+
+        /* Modal/Alert for URL */
+        .url-box {
+            display: none;
+            background: #064e3b;
+            color: #a7f3d0;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+
+        .url-box a {
+            color: #5eead4;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>CSS Shape Generator</h1>
+        <div class="btn-group">
+            <button class="btn-chrome" onclick="generateChromeLink()"> Chrome Link (Play)</button>
+            <button onclick="copyCSS()"> Code Copy</button>
+        </div>
+        <div id="urlBox" class="url-box">
+            लिंक तैयार है! नीचे क्लिक करके Chrome में खोलें:<br>
+            <a id="chromeUrlLink" href="#" target="_blank">Open in Browser</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Control Panel -->
+        <div class="controls-card">
+            <div class="control-group">
+                <label>1. Shape Type (शेप चुनें)</label>
+                <select id="shapeType" onchange="updateShape()">
+                    <option value="square">Square (वर्ग)</option>
+                    <option value="circle">Circle (गोला)</option>
+                    <option value="rectangle">Rectangle (आयात)</option>
+                    <option value="triangle">Triangle (त्रिभुज)</option>
+                    <option value="star">Star (स्टार)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>2. Size (साइज़)</label>
+                <div class="range-container">
+                    <input type="range" id="shapeSize" min="40" max="180" value="100" oninput="updateShape()">
+                    <span id="sizeVal">100px</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>3. Color (रंग)</label>
+                <input type="color" id="shapeColor" value="#38bdf8" oninput="updateShape()">
+            </div>
+
+            <div class="control-group">
+                <label>4. Border Radius (गोलाई %)</label>
+                <div class="range-container">
+                    <input type="range" id="shapeRadius" min="0" max="50" value="0" oninput="updateShape()">
+                    <span id="radiusVal">0%</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>5. Rotation (घुमाव Deg)</label>
+                <div class="range-container">
+                    <input type="range" id="shapeRotate" min="0" max="360" value="0" oninput="updateShape()">
+                    <span id="rotateVal">0deg</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Preview Box -->
+        <div class="preview-card">
+            <div id="shape"></div>
+        </div>
+
+        <!-- Generated CSS Code Area -->
+        <div class="code-card" id="cssOutput">
+            /* CSS यहाँ जनरेट होगा */
+        </div>
+    </div>
+
+    <script>
+        function updateShape() {
+            const type = document.getElementById('shapeType').value;
+            const size = document.getElementById('shapeSize').value;
+            const color = document.getElementById('shapeColor').value;
+            const radius = document.getElementById('shapeRadius').value;
+            const rotate = document.getElementById('shapeRotate').value;
+
+            document.getElementById('sizeVal').innerText = size + 'px';
+            document.getElementById('radiusVal').innerText = radius + '%';
+            document.getElementById('rotateVal').innerText = rotate + 'deg';
+
+            const shape = document.getElementById('shape');
+            shape.style = ""; // Clear previous styles
+
+            let cssText = "";
+
+            if (type === 'square' || type === 'circle' || type === 'rectangle') {
+                const width = type === 'rectangle' ? size * 1.5 : size;
+                const height = size;
+                const borderRadius = type === 'circle' ? '50%' : radius + '%';
+
+                shape.style.width = width + 'px';
+                shape.style.height = height + 'px';
+                shape.style.backgroundColor = color;
+                shape.style.borderRadius = borderRadius;
+                shape.style.transform = `rotate(${rotate}deg)`;
+
+                cssText = `width: ${width}px;\nheight: ${height}px;\nbackground-color: ${color};\nborder-radius: ${borderRadius};\ntransform: rotate(${rotate}deg);`;
+            } 
+            else if (type === 'triangle') {
+                shape.style.width = '0';
+                shape.style.height = '0';
+                shape.style.borderLeft = (size/2) + 'px solid transparent';
+                shape.style.borderRight = (size/2) + 'px solid transparent';
+                shape.style.borderBottom = size + 'px solid ' + color;
+                shape.style.transform = `rotate(${rotate}deg)`;
+
+                cssText = `width: 0;\nheight: 0;\nborder-left: ${size/2}px solid transparent;\nborder-right: ${size/2}px solid transparent;\nborder-bottom: ${size}px solid ${color};\ntransform: rotate(${rotate}deg);`;
+            }
+            else if (type === 'star') {
+                shape.style.width = size + 'px';
+                shape.style.height = size + 'px';
+                shape.style.backgroundColor = color;
+                shape.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+                shape.style.transform = `rotate(${rotate}deg)`;
+
+                cssText = `width: ${size}px;\nheight: ${size}px;\nbackground-color: ${color};\nclip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);\ntransform: rotate(${rotate}deg);`;
+            }
+
+            document.getElementById('cssOutput').innerText = cssText;
+        }
+
+        // Generate temporary Blob URL for Chrome
+        function generateChromeLink() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const urlBox = document.getElementById('urlBox');
+            const chromeLink = document.getElementById('chromeUrlLink');
+            
+            chromeLink.href = url;
+            urlBox.style.display = 'block';
+        }
+
+        // Copy generated CSS
+        function copyCSS() {
+            const codeText = document.getElementById('cssOutput').innerText;
+            navigator.clipboard.writeText(codeText).then(() => {
+                alert('CSS कोड कॉपी हो गया!');
+            });
+        }
+
+        // Initial Load
+        updateShape();
+    </script>
+</body>
+</html>
